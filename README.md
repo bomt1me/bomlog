@@ -1,0 +1,2 @@
+# bomlog
+Logging fun.
