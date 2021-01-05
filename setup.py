@@ -12,7 +12,7 @@ REQUIREMENTS = [
 
 setup(
     name="bom-logger",
-    version="1.0.1",
+    version="1.0.2",
     description="config",
     long_description=Path("README.md").read_text(),
     author="Calvin Spring",
