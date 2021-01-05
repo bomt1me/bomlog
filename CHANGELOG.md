@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 * chore(log): Fix type hints and publish.
 
 ### Fixes
+* fix: Fix include in manifest.in
 
 ### Breaks
 
