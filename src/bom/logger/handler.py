@@ -4,6 +4,7 @@
 import logging
 import logging.handlers
 import multiprocessing
+import multiprocessing.synchronize
 
 
 class MultiprocessingFileHandler(logging.handlers.RotatingFileHandler):
@@ -11,29 +12,29 @@ class MultiprocessingFileHandler(logging.handlers.RotatingFileHandler):
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
-        filename,
-        lock: multiprocessing.Lock,
-        mode="a",
-        maxBytes=1000000 * 10,
-        backupCount=int(1000 / 10),
-        encoding=None,
-        delay=False,
-        errors=None,
-    ):
+        filename: str,
+        lock: multiprocessing.synchronize.Lock,
+        maxBytes: int,
+        backupCount: int,
+        mode: str = "a",
+        encoding: str = "utf-8",
+        delay: bool = False,
+        errors: str = "strict",
+    ) -> None:
         """ __init__ """
 
         super().__init__(
             filename,
-            mode=mode,
-            maxBytes=maxBytes,
-            backupCount=backupCount,
-            encoding=encoding,
-            delay=delay,
-            errors=errors,
+            mode,
+            maxBytes,
+            backupCount,
+            encoding,
+            delay,
+            errors,
         )
         self._lock = lock
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         """
         Emit a record.
         Output the record to the file, catering for rollover as described

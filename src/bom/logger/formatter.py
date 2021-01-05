@@ -102,6 +102,9 @@ class JsonFormatter(logging.Formatter):
             if not record.exc_text:
                 record.exc_text = self.formatException(record.exc_info)
 
+        if not record.stack_info:
+            record.stack_info = ""
+
         dict_message.update(
             {
                 "exc_text": record.exc_text,
