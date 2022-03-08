@@ -1,0 +1,35 @@
+name: Dev
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  tests:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: "ubuntu-latest"
+
+    strategy:
+      matrix:
+        python-version: ["python:3.8-bullseye", "python:3.9-bullseye", "python:3.10-bullseye"]
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - name: "Build Docker"
+        run: sh scripts/docker ${{ matrix.python-version }}
+      - name: "Build Package"
+        run: "docker run -p 8888:8000 -v $(pwd):/library bom-logger sh scripts/build"
+      - name: "Lint package"
+        run: "docker run -p 8888:8000 -v $(pwd):/library bom-logger sh scripts/lint"
+      - name: "Run tests"
+        run: "docker run -p 8888:8000 -v $(pwd):/library bom-logger sh scripts/test"
+      - name: "Run coverage"
+        run: "docker run -p 8888:8000 -v $(pwd):/library bom-logger sh scripts/coverage"
+      - name: "Publish to PyPI"
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && matrix.python-version == 'python:3.8-bullseye' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: "docker run --env TWINE_PASSWORD=$TWINE_PASSWORD --env TWINE_USERNAME=$TWINE_USERNAME -p 8888:8000 -v $(pwd):/library bom-logger sh scripts/publish"

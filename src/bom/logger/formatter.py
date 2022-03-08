@@ -1,6 +1,3 @@
-""" formatter """
-
-
 import datetime
 import inspect
 import json
@@ -38,46 +35,35 @@ RESERVED_ATTRS = {
 EASY_TYPES = (str, bool, dict, float, int, list, type(None))
 
 
-def get_extra_fields(record: logging.LogRecord) -> Dict[str, Any]:
-    """ get_extra_fields """
+def basic_type_encoder(obj: Any) -> Any:
+    if isinstance(obj, (datetime.date, datetime.datetime, datetime.time)):
+        return obj.isoformat()
 
+    if inspect.istraceback(obj):
+        return "".join(traceback.format_tb(obj)).strip()
+
+    if isinstance(obj, (Exception, type)):
+        return str(obj)
+
+    try:
+        return str(obj)
+    except Exception:  # pylint: disable=broad-except
+        return None
+
+
+def get_extra_fields(record: logging.LogRecord) -> Dict[str, Any]:
     fields = {}
     for key, value in record.__dict__.items():
         if key not in RESERVED_ATTRS:
             if isinstance(value, EASY_TYPES):
                 fields[key] = value
             else:
-                fields[key] = repr(value)
+                fields[key] = basic_type_encoder(value)
     return fields
 
 
-class JsonEncoder(json.JSONEncoder):
-    """ JsonEncoder """
-
-    def default(self, o: Any) -> Any:
-        """ default """
-
-        if isinstance(o, (datetime.date, datetime.datetime, datetime.time)):
-            return o.isoformat()
-        if inspect.istraceback(o):
-            return "".join(traceback.format_tb(o)).strip()
-        if isinstance(o, (Exception, type)):
-            return str(o)
-        try:
-            return super().default(o)
-        except TypeError:
-            try:
-                return str(o)
-            except Exception:  # pylint: disable=broad-except
-                return None
-
-
 class JsonFormatter(logging.Formatter):
-    """ JsonFormatter """
-
     def format(self, record: logging.LogRecord) -> str:
-        """ format """
-
         dict_message = {
             "asctime": self.formatTime(record, self.datefmt),
             "created": record.created,
@@ -114,4 +100,4 @@ class JsonFormatter(logging.Formatter):
         )
 
         dict_message.update(get_extra_fields(record))
-        return json.dumps(dict_message, cls=JsonEncoder)
+        return json.dumps(dict_message)

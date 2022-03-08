@@ -1,4 +1,0 @@
-include README.md
-recursive-include src/bom/logger reference.conf
-recursive-include src/bom/logger reference.*.conf
-include CHANGELOG.md
