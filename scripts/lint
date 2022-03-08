@@ -7,4 +7,5 @@ pyflakes ./src
 pyflakes ./tests
 pylint ./src --rcfile .pylintrc
 pylint ./tests --rcfile .pylintrc
-mypy src tests
+mypy --namespace-packages -p bom.logger
+mypy tests

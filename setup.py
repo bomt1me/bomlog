@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 
 
 REQUIREMENTS = ["bom-configuration"]
-VERSION = "1.0.4"
+VERSION = "1.0.5"
 
 
 setup(
